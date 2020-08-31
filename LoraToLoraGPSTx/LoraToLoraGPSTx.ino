@@ -46,16 +46,16 @@ void loop()
       lattitude = (gps.location.lat());
       longitude = (gps.location.lng());
       Serial.print ("lattitude: ");
-      Serial.println (lattitude);
+      Serial.println (lattitude,6);
       Serial.print ("longitude: ");
-      Serial.println (longitude);
+      Serial.println (longitude,6);
       LoRa.beginPacket();
   LoRa.setTxPower(14,RF_PACONFIG_PASELECT_PABOOST);
   LoRa.print(counter);
   LoRa.print(":");
-  LoRa.print(lattitude);
+  LoRa.print(lattitude,6);
   LoRa.print(":");
-  LoRa.print(longitude);
+  LoRa.print(longitude,6);
   LoRa.print(":");
   LoRa.endPacket();
       Heltec.display->clear();
@@ -64,8 +64,8 @@ void loop()
   
   Heltec.display->drawString(0, 0, "Sending packet: ");
   Heltec.display->drawString(90, 0, String(counter));
-  Heltec.display->drawString(0, 30, "Lat: "+String(lattitude));
-  Heltec.display->drawString(0, 50, "Long: "+String(longitude));
+  Heltec.display->drawString(0, 30, "Lat: "+String(lattitude,6));
+  Heltec.display->drawString(0, 50, "Long: "+String(longitude,6));
   Heltec.display->display();
   counter++;  
   delay(1000);
