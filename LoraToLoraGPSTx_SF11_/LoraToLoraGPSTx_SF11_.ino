@@ -68,5 +68,5 @@ void loop()
   Heltec.display->drawString(0, 50, "Long: "+String(longitude,6));
   Heltec.display->display();
   counter++;  
-  delay(10000);
+  delay(1000);
   }
