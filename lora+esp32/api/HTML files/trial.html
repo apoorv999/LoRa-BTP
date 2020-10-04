@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+	  <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+      <meta name="Vikkey" content="Vivek Gupta & IoTMonk">
+	  <meta http-equiv="Access-Control-Allow-Origin" content="*">
+	
+	 <!-- If you are opening this page from local machine, uncomment belwo line -->
+	
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script> 
+	  <!-- Openlayers CSS --> 
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.4.3/css/ol.css" type="text/css">
+	 <!--  OpenLayers JS -->
+    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.4.3/build/ol.js"></script> 
+	  
+	 <!--<link rel="stylesheet" href="./ol.css"> -->
+	 <!-- If you are opening this page from a web hosting server machine, uncomment belwo line -->
+	 <!--
+	 <script type="text/javascript">
+		document.write([
+			"\<script src='",
+			("https:" == document.location.protocol) ? "https://" : "http://",
+			"ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js' type='text/javascript'>\<\/script>" 
+		].join(''));
+	  </script>
+	  -->
+	  <title>water pollution logging</title>
+	  <style>
+	.footer{
+		background:rgba(246, 171, 100,0.5);
+		width:100%;
+		height:50px;
+		position: fixed;;
+		bottom:0;
+		left:0;
+	}
+
+    .center { 
+		height: 400px;
+		width: 400px;
+		background: #b3c9f3;
+		position: absolute;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+		top: 50%;
+		left: 50%;
+		margin-top: -200px;
+		margin-left: -200px;
+	}
+	
+	.form{
+		padding-top: 10px;
+		padding-right: 0px;
+		padding-bottom: 50px;
+		padding-left: 0px;
+	}	
+	.map {
+        height: 500px;
+        width: 100%;
+      }
+	</style>
+    </head>
+   <body bgcolor="#ffffff">
+	
+    <center>
+        <h1 style="font-family: Helvetica;color: burlywood;font-size: 60px;white-space:nowrap">Water pollution level at different location</h1>
+    </center>
+	<div class="center">
+	   <div align="center" class="form">
+		   <p style = 'line-height: 40px;font-family: Helvetica;color: rgb(255, 255, 255);font-size: 35px;text-decoration: underline;'>
+				Latest Data
+			</p>
+            <p style = 'line-height: 40px;font-family: Helvetica;color: #fff;font-size: 50px;' id="turbidity">
+				<img src = 'turbidity.png' height="60px" width="60px" style='vertical-align: middle' /> 00.00
+            </p>
+            <p style = 'line-height: 40px;font-family: Helvetica;color: #fff;font-size: 20px;' id="gps">
+                <img src = 'gps.png' height="60px" width="60px" style='vertical-align: middle' /> 00.00
+			</p>
+			
+	<button id="reset" style="background-color: cornflowerblue;color: white;font-family: Helvetica; font-size: 20px; border-radius: 20px;padding: 10px 10px;"><b>Reset</b></button>
+        </div>
+	</div>
+	<!--An orange div containing heading and map-->
+	<div style = 'background: orange; top: 100%; width: 100%;height: 100%; position: absolute'>
+		<div align="center">
+			<p style = 'line-height: 60px;font-family: Helvetica;color: rgb(255, 255, 255);font-size: 50px;'>
+				 Data plotted on map
+			 </p>
+		 </div>
+		 <div id="map" class="map">  </div> 
+		 <div id="popup" class="ol-popup">
+			<a href="#" id="popup-closer" class="ol-popup-closer"></a>
+			<div id="popup-content" style='background:rgb(189, 220, 238);border-radius: 100px;border: 4px solid rgb(93, 93, 128);padding: 10px 10px;font-family: Helvetica;font-size: 20px;'></div>
+		</div>
+		</div>
+	 <!--a fixed footer-->
+	<footer class="footer">
+			<h6 style="font-family: Helvetica;color:black;text-align: right;">Apoorv Aryan, Swapniil Kanwar, Harsh Sharma   .</h4>>
+	</footer>
+
+	</body>
+	
+	<!--script for data display every 5 seconds-->
+	<script>
+		window.onload = function() {
+            loaddata();
+		};
+		var lat;
+		var lon;
+		var turbidity;
+		var oldid = null;
+		var Delhiview = new ol.View({
+  center: ol.proj.fromLonLat([77.1025,28.7041]),
+  zoom: 6
+});
+
+//BaseLayer
+var baselayer = new ol.layer.Tile({
+    source: new ol.source.OSM()
+  });
+
+var markerSource = new ol.source.Vector({
+  // It is empty initially but later it will be filled with markerSource.addFeature(markerfeature) and it can be removed with markerSource.Clear()
+});
+
+
+
+
+//Markerlayer
+var markerlayer = new ol.layer.Vector({
+    source: markerSource
+});
+
+  var map = new ol.Map({
+    target: "map"
+  });
+  map.setView(Delhiview);
+  map.addLayer(baselayer);
+  map.addLayer(markerlayer);
+
+  var iconStyle = new ol.style.Style({
+    image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+      anchor: [0.5, 32],
+      anchorXUnits: 'fraction',
+      anchorYUnits: 'pixels',
+      src: './gpsicon.png'
+    }))
+  });
+
+//   markerfeature.setStyle(iconStyle);
+//   markerSource.addFeature(markerfeature);
+  
+
+		//-------------------------------------------------------popup-----------------------------------------------------------------
+var container = document.getElementById('popup');
+ var content = document.getElementById('popup-content');
+ var closer = document.getElementById('popup-closer');
+
+ var overlay = new ol.Overlay({
+     element: container,
+     autoPan: true,
+     autoPanAnimation: {
+         duration: 250
+     }
+ });
+ map.addOverlay(overlay);
+
+ closer.onclick = function() {
+     overlay.setPosition(undefined);
+     closer.blur();
+     return false;
+ };
+
+ map.on('singleclick', function (event) {
+  // if (map.hasFeatureAtPixel(event.pixel) === true) {
+  var selectedfeature = map.forEachFeatureAtPixel(event.pixel,
+    function(feature) {
+      return feature;
+    });
+    if (selectedfeature){
+      var coordinate = event.coordinate;
+      content.innerHTML = "<b>Turbidity: </b>" +selectedfeature.get('turb') +"<br><b> GPS:</b> " + selectedfeature.get('gps') ;
+      overlay.setPosition(coordinate);
+  } else {
+      overlay.setPosition(undefined);
+      closer.blur();
+  }
+});
+// ------------------------------------------to truncate the database---------------------------------------
+		document.getElementById('reset').onclick = function () {
+  			var truncate = "https://waterbuoy.000webhostapp.com/api/truncatetable.php";
+			$.getJSON(truncate, function(data) {});
+			};
+//----------------------------------------------------------------------------------------------------------
+		function loaddata(){
+				var url = "https://waterbuoy.000webhostapp.com/api/read_all.php";
+				$.getJSON(url, function(data) {
+				var val= data;
+				var id=(data['pollutionlevel'][(Object.keys(data['pollutionlevel']).length)-1]['id']);
+				lat=(data['pollutionlevel'][(Object.keys(data['pollutionlevel']).length)-1]['lat']);
+				lon=(data['pollutionlevel'][(Object.keys(data['pollutionlevel']).length)-1]['lon']);
+                turbidity=(data['pollutionlevel'][(Object.keys(data['pollutionlevel']).length)-1]['turbidity']);
+                document.getElementById("turbidity").innerHTML = "<img src = 'turbidity.png' height=\"60px\" width=\"60px\" style='vertical-align: middle' />  " +turbidity;
+                document.getElementById("gps").innerHTML = "<img src = 'gps.png' height=\"60px\" width=\"60px\" style='vertical-align: middle' />  " +lat+" : "+lon;
+				console.log(data['pollutionlevel'][(Object.keys(data['pollutionlevel']).length)-1]['turbidity']);
+				
+				var mypoint = new ol.geom.Point(ol.proj.fromLonLat([parseFloat(lon), parseFloat(lat)]));
+				var markerfeature = new ol.Feature({
+  				geometry: mypoint,
+  				turb: parseFloat(turbidity),
+  				gps: parseFloat(lat) + "°N " + parseFloat(lon) + "°E"
+				});
+				if(oldid!=id){
+				markerfeature.setStyle(iconStyle);
+				markerSource.addFeature(markerfeature);
+				}
+				oldid=id;
+				});
+        }
+        window.setInterval(function(){
+        loaddata();
+            }, 10000);
+	
+	</script>
+</html>
