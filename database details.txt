@@ -1,6 +1,3 @@
 Database name id15017330_waterbuoy
 Database username id15017330_water_buoy
 Password 72zb}/#1dQUiYzA&
-
-google project id : water-pollution-measurement
-API key: AIzaSyDSIWx5qtVgHEc7OgNLI5_y-3YPGst8DuI
