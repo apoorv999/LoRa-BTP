@@ -1,0 +1,5 @@
+this is for trial only. not required for the website
+
+DELHI:         ?lat=28.7041&&lon=77.1025&&turbidity=1.2
+DEHRADUN:      ?lat=30.3165&&lon=78.0322&&turbidity=3.7
+LUCKNOW:       ?lat=26.8467&&lon=80.9462&&turbidity=2.9
